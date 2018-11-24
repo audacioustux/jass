@@ -1,0 +1,48 @@
+{
+  "name": "jass",
+  "version": "0.1.0",
+  "description": "Javascript based preprocessor",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "npx babel src --out-dir dist",
+    "build-watch": "npx babel src --out-dir dist --watch",
+    "start": "node dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/audacioustux/jass.git"
+  },
+  "keywords": [
+    "jass",
+    "css",
+    "preprocessor"
+  ],
+  "author": "Tanjim Hossain",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/audacioustux/jass/issues"
+  },
+  "homepage": "https://github.com/audacioustux/jass#readme",
+  "dependencies": {
+    "@babel/cli": "^7.1.5",
+    "@babel/core": "^7.1.6",
+    "@babel/plugin-proposal-class-properties": "^7.1.0",
+    "@babel/plugin-proposal-decorators": "^7.1.6",
+    "@babel/plugin-proposal-do-expressions": "^7.0.0",
+    "@babel/plugin-proposal-export-default-from": "^7.0.0",
+    "@babel/plugin-proposal-export-namespace-from": "^7.0.0",
+    "@babel/plugin-proposal-json-strings": "^7.0.0",
+    "@babel/plugin-proposal-logical-assignment-operators": "^7.0.0",
+    "@babel/plugin-proposal-numeric-separator": "^7.0.0",
+    "@babel/plugin-proposal-optional-chaining": "^7.0.0",
+    "@babel/plugin-proposal-pipeline-operator": "^7.0.0",
+    "@babel/plugin-proposal-throw-expressions": "^7.0.0",
+    "@babel/plugin-syntax-dynamic-import": "^7.0.0",
+    "@babel/plugin-syntax-import-meta": "^7.0.0",
+    "@babel/preset-env": "^7.1.6",
+    "@babel/preset-flow": "^7.0.0",
+    "chokidar": "^2.0.4",
+    "lodash": "^4.17.11"
+  }
+}
