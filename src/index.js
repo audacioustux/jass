@@ -1,11 +1,13 @@
-import * as config from './example/config.jass';
-import {cartesianProductOf} from './utils/cartesianProduct'
+#!/usr/bin/node
+import path from 'path';
+import chokidar from 'chokidar';
 
-const c = [2,3];
-const [a,b] = c;
-console.log(a);
-// const a = (template, data) => {
-//     console.log(cartesianProductOf(...Object.values(data)));
-// }
-
-// a('col#{viewport}#{width}', {viewport: Object.keys(config.breakPointsMap), width: Object.keys(config.widths)})
+const jassWatcher = chokidar.watch(path.join(process.cwd(), "/**/*.jass.js"), {
+    ignored: /(node_modules).+/,
+});
+async function build(path) {
+    console.log(path)
+}
+jassWatcher
+    .on("add", path => build(path))
+    .on("change", path => build(path));

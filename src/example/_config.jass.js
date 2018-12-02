@@ -1,3 +1,14 @@
+export const jassConfig = {
+    units: {
+        global: true,
+        selector: '.',
+        childSelector: ' ',
+        units: {
+            all: 'px'
+        }
+    }
+}
+
 export const breakPointsMap = {
     xs: 0,
     sm: 576,

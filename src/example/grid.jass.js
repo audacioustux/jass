@@ -1,7 +1,12 @@
-import * as config from './config.jass'
+import * as config from './_config.jass'
 
 const styles = (...vars) => {
-    return vars.length()
+    return ({
+        a: 223,
+        _option: {
+            aa: 23
+        }
+    })
 }
 
-console.log(styles(['a','b','c'],[1,2],['md','sm','lg']))
+export default styles();
