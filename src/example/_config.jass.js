@@ -5,7 +5,8 @@ export const jassConfig = {
         childSelector: ' ',
         units: {
             all: 'px'
-        }
+        },
+        strict: true
     }
 }
 
