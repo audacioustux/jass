@@ -5,21 +5,26 @@ function media(query){
 }
 const styles = (...vars) => {
     return ({
-        _option: {
+        _options: {
             global: true,
-            unit: 'px'
+            unit: 'px',
+            childSelector: ' '
         },
+        _global: false,
         button: {
             width: 20,
             height: 10,
             red: {
                 __s: '>',
                 color: 'red',
+                black: {
+                    bg: 1
+                },
                 hover: {
-                    color: 000000
+                    color: 0
                 }
             },
-            _s: ' ',
+            _s: '+',
             green: {
                 color: 'green'
             }
@@ -30,6 +35,18 @@ const styles = (...vars) => {
                     display: 'flex'
                 }
             }
+        },
+        col6: {
+            display: 'flex'
+        },
+        col7: {
+            display: 'flex'
+        },
+        col9: {
+            display: 'flex'
+        },
+        col11: {
+            display: 'flex'
         }
     })
 }
