@@ -3,6 +3,7 @@ import * as config from './_config.jass'
 function media(query){
     return 'sds'
 }
+
 const styles = (...vars) => {
     return ({
         _options: {
@@ -10,23 +11,42 @@ const styles = (...vars) => {
             unit: 'px',
             childSelector: ' '
         },
+        [Symbol()]: {
+            _important: true,
+            red: {
+                color: 'red'
+            }
+        },
+        [Symbol()]: {
+            _important: false,
+            blue: {
+                color: 'blue'
+            },
+            red: {
+                color: 'red'
+            }
+        },
         _global: false,
         button: {
-            width: 20,
-            height: 10,
-            red: {
-                __s: '>',
-                color: 'red',
-                black: {
-                    bg: 1
+            [Symbol()]: {
+                _s: ' ',
+                width: 20,
+                height: 10,
+                red: {
+                    __s: '>',
+                    color: 'red',
+                    black: {
+                        bg: 1
+                    },
+                    hover: {
+                        color: 0
+                    }
                 },
-                hover: {
-                    color: 0
-                }
             },
             _s: '+',
             green: {
-                color: 'green'
+                color: 'green',
+                size: [10,20]
             }
         },
         [/regex/]: {
@@ -38,17 +58,15 @@ const styles = (...vars) => {
         },
         col6: {
             display: 'flex'
-        },
-        col7: {
-            display: 'flex'
-        },
-        col9: {
-            display: 'flex'
-        },
-        col11: {
-            display: 'flex'
         }
     })
 }
 
-export default styles;
+const moreStyle = {
+    [Symbol()]: {
+        display: 'fle'
+    }
+}
+
+export default [styles(), [moreStyle, {postfix: '_morestyle'}]];
+// export default styles();
