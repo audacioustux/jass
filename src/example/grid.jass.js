@@ -38,7 +38,7 @@ const styles = (...vars) => {
                     black: {
                         bg: 1
                     },
-                    hover: {
+                    ':hover': {
                         color: 0
                     }
                 },
@@ -57,7 +57,8 @@ const styles = (...vars) => {
             }
         },
         col6: {
-            display: 'flex'
+            display: 'flex',
+            backgroundColor: 0
         }
     })
 }
@@ -68,5 +69,37 @@ const moreStyle = {
     }
 }
 
-export default [styles(), [moreStyle, {postfix: '_morestyle'}]];
+const jassLoad = () => {
+    const load = {}
+    for(let i=0; i<5000; i++){
+        const sym = Symbol();
+        load[sym] = {
+            button: {
+                [Symbol()]: {
+                    _s: ' ',
+                    width: 20,
+                    height: 10,
+                    red: {
+                        __s: '>',
+                        color: 'red',
+                        black: {
+                            bg: 1
+                        },
+                        ':hover': {
+                            color: 0
+                        }
+                    },
+                },
+                _s: '+',
+                green: {
+                    color: 'green',
+                    size: [10,20]
+                }
+            }
+        }
+    }
+    return load;
+}
+
+export default [styles(), [moreStyle, {postfix: '_morestyle'}], ];
 // export default styles();

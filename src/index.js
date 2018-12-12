@@ -40,23 +40,34 @@ function collectOptions(object){
     return [_childOptions, _thisBlockOptions];
 }
 
-function jassTraverse(object, store){
+function jassTraverse(object, options){
     if(Array.isArray(object)){
         object.forEach(value => {
-            jassTraverse(value, store);
+            jassTraverse(value, options);
         })
     } else if (isDicklike(object)){
-        console.log('*');
-        console.log(store.optionsStack)
         const _options = collectOptions(object);
-        store.optionsStack.push(_options);
+        const thisBlockOptions = Object.assign({}, options, _options[1]);
+        // console.log(thisBlockOptions);
         const keys = [...Object.keys(object),...Object.getOwnPropertySymbols(object)];
         keys.forEach(key => {
-            jassTraverse(object[key], store);
+            const childOptions = Object.assign({}, options, _options[0]);
+            jassTraverse(object[key], childOptions);
+            
+            if(isDicklike(object[key]) && !Array.isArray(object[key])){
+                if(typeof key !== "symbol"){
+                    console.log("class: " + key);
+                }
+            } else {
+                if(_.kebabCase(key) != key){
+                    Object.defineProperty(object, _.kebabCase(key), Object.getOwnPropertyDescriptor(object, key));
+                    delete object[key];
+                }
+                console.log("property: " + key)
+            }
         })
-        store.optionsStack.pop();
     } else {
-        
+        console.log('value: ' + object);
     }
 }
 
@@ -68,25 +79,26 @@ async function build(path) {
     (jassObject !== null)){
         // const rootOptions = Object.assign({}, defaultOptions, collectOptions(jassObject)[0]);
         // TODO: warn if `this` block options exist... No use of them in root level
-        const store = {
-            // index 0: forChild options, 
-            // index 1: `this` block
-            optionsStack: [
-                [defaultOptions, {}],
-                // [rootOptions]
-            ]
-        }
+        // const store = {
+        //     // index 0: forChild options, 
+        //     // index 1: `this` block
+        //     optionsStack: [
+        //         [defaultOptions, {}],
+        //         // [rootOptions]
+        //     ]
+        // }
+        // NOTE: concurrency issue with store
         if(Array.isArray(jassObject)){
             jassObject.forEach(value => {
                 if(Array.isArray(value)){
                     if(isDicklike(value[0])){
-                        jassTraverse(value[0], store);
+                        jassTraverse(value[0], defaultOptions);
                         // TODO: use value[1] settings to save generated css
                     } else {
                         console.log("<wrong export format>")
                     }
                 } else if (isDicklike(value)){
-                    jassTraverse(value, store);
+                    jassTraverse(value, defaultOptions);
                 } else {
                     console.log("<wrong export format>")
                 }
@@ -94,9 +106,10 @@ async function build(path) {
         } else {
             // const keys = [...Object.keys(jassObject),...Object.getOwnPropertySymbols(jassObject)]
             // async.forEach(keys, key => {
-                jassTraverse(jassObject, store);
+                jassTraverse(jassObject, defaultOptions);
             // })
         }
+        console.log(jassObject);
     } else {
         console.log("<export error> Couldn\'t parse: " + path);
     }
