@@ -42,32 +42,41 @@ function collectOptions(object){
 
 function jassTraverse(object, options){
     if(Array.isArray(object)){
-        object.forEach(value => {
-            jassTraverse(value, options);
+        return object.map(value => {
+            return jassTraverse(value, options);
         })
     } else if (isDicklike(object)){
         const _options = collectOptions(object);
         const thisBlockOptions = Object.assign({}, options, _options[1]);
         // console.log(thisBlockOptions);
         const keys = [...Object.keys(object),...Object.getOwnPropertySymbols(object)];
-        keys.forEach(key => {
-            const childOptions = Object.assign({}, options, _options[0]);
-            jassTraverse(object[key], childOptions);
-            
+        return keys.map(key => {
             if(isDicklike(object[key]) && !Array.isArray(object[key])){
-                if(typeof key !== "symbol"){
-                    console.log("class: " + key);
-                }
+                const childOptions = Object.assign({}, options, _options[0]);
+                const childTraversed = jassTraverse(object[key], childOptions);
+                // console.log(Object.assign({}, ...childTraversed))
+                // if(typeof key !== "symbol"){
+                    // console.log("class: " + key);
+                    return {
+                        ...Object.assign({}, ...childTraversed),
+                        [_.kebabCase(key.toString())]: object[key]
+                    }
+                // }
             } else {
-                if(_.kebabCase(key) != key){
-                    Object.defineProperty(object, _.kebabCase(key), Object.getOwnPropertyDescriptor(object, key));
-                    delete object[key];
-                }
-                console.log("property: " + key)
+                const childOptions = Object.assign({}, options, _options[0]);
+                const childTraversed = jassTraverse(object[key], childOptions);
+                // console.log(childTraversed);
+                // if(_.kebabCase(key) != key){
+                //     Object.defineProperty(object, _.kebabCase(key), Object.getOwnPropertyDescriptor(object, key));
+                //     delete object[key];
+                // }
+                // console.log("property: " + key)
+                // return {[_.kebabCase(key)]: object[key]}
+                // console.log(childTraversed)
             }
         })
     } else {
-        console.log('value: ' + object);
+        return object;
     }
 }
 
@@ -98,7 +107,8 @@ async function build(path) {
                         console.log("<wrong export format>")
                     }
                 } else if (isDicklike(value)){
-                    jassTraverse(value, defaultOptions);
+                    console.log(jassTraverse(value, defaultOptions));
+                    // jassTraverse(value, defaultOptions)
                 } else {
                     console.log("<wrong export format>")
                 }
@@ -109,7 +119,7 @@ async function build(path) {
                 jassTraverse(jassObject, defaultOptions);
             // })
         }
-        console.log(jassObject);
+        // console.log(jassObject);
     } else {
         console.log("<export error> Couldn\'t parse: " + path);
     }

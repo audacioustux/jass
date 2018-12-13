@@ -44,15 +44,15 @@ const styles = (...vars) => {
                 },
             },
             _s: '+',
-            green: {
+            greenButt: {
                 color: 'green',
                 size: [10,20]
             }
         },
-        [/regex/]: {
+        row: {
             [media({minWidth: 1366})]: {
                 col6: {
-                    display: 'flex'
+                    display: 'flex',    
                 }
             }
         },
