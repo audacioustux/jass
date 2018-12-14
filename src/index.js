@@ -40,41 +40,34 @@ function collectOptions(object){
     return [_childOptions, _thisBlockOptions];
 }
 
-function jassTraverse(object, options){
+function jassTraverse(object, options, keyStack){
     if(Array.isArray(object)){
         return object.map(value => {
-            return jassTraverse(value, options);
+            return jassTraverse(value, options, keyStack);
         })
     } else if (isDicklike(object)){
         const _options = collectOptions(object);
         const thisBlockOptions = Object.assign({}, options, _options[1]);
-        // console.log(thisBlockOptions);
-        const keys = [...Object.keys(object),...Object.getOwnPropertySymbols(object)];
-        return keys.map(key => {
+        const keys = [...Object.keys(object), ...Object.getOwnPropertySymbols(object)];
+        return Object.assign({}, ...keys.map(key => {
             if(isDicklike(object[key]) && !Array.isArray(object[key])){
                 const childOptions = Object.assign({}, options, _options[0]);
-                const childTraversed = jassTraverse(object[key], childOptions);
-                // console.log(Object.assign({}, ...childTraversed))
-                // if(typeof key !== "symbol"){
-                    // console.log("class: " + key);
-                    return {
-                        ...Object.assign({}, ...childTraversed),
-                        [_.kebabCase(key.toString())]: object[key]
-                    }
-                // }
+                keyStack.push(key);
+                console.log(keyStack)
+                const childTraversed = jassTraverse(object[key], childOptions, keyStack);
+                const _key = keyStack.pop().toString();
+                
+                return {[_key]: childTraversed}
             } else {
                 const childOptions = Object.assign({}, options, _options[0]);
-                const childTraversed = jassTraverse(object[key], childOptions);
-                // console.log(childTraversed);
+                const childTraversed = jassTraverse(object[key], childOptions, keyStack);
                 // if(_.kebabCase(key) != key){
                 //     Object.defineProperty(object, _.kebabCase(key), Object.getOwnPropertyDescriptor(object, key));
                 //     delete object[key];
                 // }
-                // console.log("property: " + key)
-                // return {[_.kebabCase(key)]: object[key]}
-                // console.log(childTraversed)
+                return {[_.kebabCase(key)]: childTraversed}
             }
-        })
+        }))
     } else {
         return object;
     }
@@ -83,43 +76,26 @@ function jassTraverse(object, options){
 async function build(path) {
     const jassImport = await import(path);
     const jassObject = jassImport.default;
-    if((typeof jassObject === 'object') && 
-    // !(Array.isArray(jassObject)) && 
-    (jassObject !== null)){
-        // const rootOptions = Object.assign({}, defaultOptions, collectOptions(jassObject)[0]);
-        // TODO: warn if `this` block options exist... No use of them in root level
-        // const store = {
-        //     // index 0: forChild options, 
-        //     // index 1: `this` block
-        //     optionsStack: [
-        //         [defaultOptions, {}],
-        //         // [rootOptions]
-        //     ]
-        // }
-        // NOTE: concurrency issue with store
+    if((typeof jassObject === 'object') && (jassObject !== null)){
         if(Array.isArray(jassObject)){
             jassObject.forEach(value => {
                 if(Array.isArray(value)){
                     if(isDicklike(value[0])){
-                        jassTraverse(value[0], defaultOptions);
+                        jassTraverse(value[0], defaultOptions, []);
                         // TODO: use value[1] settings to save generated css
                     } else {
                         console.log("<wrong export format>")
                     }
                 } else if (isDicklike(value)){
-                    console.log(jassTraverse(value, defaultOptions));
-                    // jassTraverse(value, defaultOptions)
+                    console.log(jassTraverse(value, defaultOptions, []))
+                    // jassTraverse(value, defaultOptions, [])
                 } else {
                     console.log("<wrong export format>")
                 }
             });
         } else {
-            // const keys = [...Object.keys(jassObject),...Object.getOwnPropertySymbols(jassObject)]
-            // async.forEach(keys, key => {
-                jassTraverse(jassObject, defaultOptions);
-            // })
+            jassTraverse(jassObject, defaultOptions, []);
         }
-        // console.log(jassObject);
     } else {
         console.log("<export error> Couldn\'t parse: " + path);
     }
