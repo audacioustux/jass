@@ -49,15 +49,23 @@ function jassTraverse(object, options, keyStack){
         const _options = collectOptions(object);
         const thisBlockOptions = Object.assign({}, options, _options[1]);
         const keys = [...Object.keys(object), ...Object.getOwnPropertySymbols(object)];
-        return Object.assign({}, ...keys.map(key => {
+        const context = [{}, {}] // 0: block, 1: props
+        keys.forEach(key => {
             if(isDicklike(object[key]) && !Array.isArray(object[key])){
-                const childOptions = Object.assign({}, options, _options[0]);
-                keyStack.push(key);
-                console.log(keyStack)
-                const childTraversed = jassTraverse(object[key], childOptions, keyStack);
-                const _key = keyStack.pop().toString();
                 
-                return {[_key]: childTraversed}
+                const childOptions = Object.assign({}, options, _options[0]);
+                keyStack.push(key.toString());
+
+                // console.log(keyStack)
+                const childTraversed = jassTraverse(object[key], childOptions, keyStack);
+                
+                const _key = keyStack.join(' < ')
+                keyStack.pop()
+                if(_.isEmpty(childTraversed[1])){
+                    Object.assign(context[0], {...childTraversed[0]})
+                } else {
+                    Object.assign(context[0], {[_key]: childTraversed[1], ...childTraversed[0]})
+                }
             } else {
                 const childOptions = Object.assign({}, options, _options[0]);
                 const childTraversed = jassTraverse(object[key], childOptions, keyStack);
@@ -65,9 +73,10 @@ function jassTraverse(object, options, keyStack){
                 //     Object.defineProperty(object, _.kebabCase(key), Object.getOwnPropertyDescriptor(object, key));
                 //     delete object[key];
                 // }
-                return {[_.kebabCase(key)]: childTraversed}
+                Object.assign(context[1], {[_.kebabCase(key)]: childTraversed})
             }
-        }))
+        })
+        return context;
     } else {
         return object;
     }
