@@ -9,7 +9,7 @@ const styles = (...vars) => {
         _options: {
             global: true,
             unit: 'px',
-            childSelector: ' '
+            selector: ' '
         },
         [Symbol()]: {
             _important: true,
@@ -64,8 +64,8 @@ const styles = (...vars) => {
 }
 
 const moreStyle = {
-    [Symbol()]: {
-        display: 'fle'
+    keu: {
+        display: 'flux'
     }
 }
 

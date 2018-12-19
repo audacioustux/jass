@@ -10,13 +10,19 @@ const jassWatcher = chokidar.watch(path.join(process.cwd(), "/**/[!_.]*.jass.js"
 
 const defaultOptions = {
     global: false,
-    strict: true
+    strict: true,
+    selector: ' '
+}
+
+const defaultOptionShortcuts = {
+    selector: ['s'],
+    global: ['g']
 }
 
 function isDicklike(object){
     return (typeof object === 'object') && (object !== null)
 }
-
+ 
 function collectOptions(object){
     const _childOptions = {...object['_options']};
     delete object['_options'];
@@ -52,27 +58,25 @@ function jassTraverse(object, options, keyStack){
         const context = [{}, {}] // 0: block, 1: props
         keys.forEach(key => {
             if(isDicklike(object[key]) && !Array.isArray(object[key])){
-                
                 const childOptions = Object.assign({}, options, _options[0]);
-                keyStack.push(key.toString());
-
-                // console.log(keyStack)
+                if(!_.isSymbol(key)){
+                    keyStack.push(_.kebabCase(key));
+                }
                 const childTraversed = jassTraverse(object[key], childOptions, keyStack);
-                
-                const _key = keyStack.join(' < ')
-                keyStack.pop()
+                const _key = keyStack.join(' ')
+                // console.log(thisBlockOptions)
+                if(!_.isSymbol(key)){
+                    keyStack.pop();
+                }
                 if(_.isEmpty(childTraversed[1])){
                     Object.assign(context[0], {...childTraversed[0]})
                 } else {
                     Object.assign(context[0], {[_key]: childTraversed[1], ...childTraversed[0]})
+                    // TODO: error if _key is empty string
                 }
             } else {
                 const childOptions = Object.assign({}, options, _options[0]);
                 const childTraversed = jassTraverse(object[key], childOptions, keyStack);
-                // if(_.kebabCase(key) != key){
-                //     Object.defineProperty(object, _.kebabCase(key), Object.getOwnPropertyDescriptor(object, key));
-                //     delete object[key];
-                // }
                 Object.assign(context[1], {[_.kebabCase(key)]: childTraversed})
             }
         })
@@ -82,28 +86,33 @@ function jassTraverse(object, options, keyStack){
     }
 }
 
+// NOTE: (bug) jass.js modification not triggering any changes
 async function build(path) {
     const jassImport = await import(path);
     const jassObject = jassImport.default;
     if((typeof jassObject === 'object') && (jassObject !== null)){
         if(Array.isArray(jassObject)){
+            let jassTraversed;
             jassObject.forEach(value => {
                 if(Array.isArray(value)){
                     if(isDicklike(value[0])){
-                        jassTraverse(value[0], defaultOptions, []);
+                        jassTraversed = jassTraverse(value[0], defaultOptions, []);
                         // TODO: use value[1] settings to save generated css
                     } else {
                         console.log("<wrong export format>")
                     }
                 } else if (isDicklike(value)){
-                    console.log(jassTraverse(value, defaultOptions, []))
+                    jassTraversed = jassTraverse(value, defaultOptions, [])
                     // jassTraverse(value, defaultOptions, [])
                 } else {
                     console.log("<wrong export format>")
                 }
+                console.log(jassTraversed[0]);
+                // TODO: warn if [1] isn't empty
             });
         } else {
-            jassTraverse(jassObject, defaultOptions, []);
+            const jassTraversed = jassTraverse(jassObject, defaultOptions, []);
+            console.log(jassTraversed[0])
         }
     } else {
         console.log("<export error> Couldn\'t parse: " + path);
