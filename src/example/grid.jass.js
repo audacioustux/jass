@@ -9,7 +9,7 @@ const styles = (...vars) => {
         _options: {
             global: true,
             unit: 'px',
-            selector: ' '
+            s: ' '
         },
         [Symbol()]: {
             _important: true,
